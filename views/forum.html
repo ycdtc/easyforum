@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="javascripts/sweetalert.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="stylesheets/sweetalert.css"/>
+    <link rel="stylesheet" type="text/css" href="stylesheets/base.css"/>
+    <link rel="stylesheet" type="text/css" href="stylesheets/forum.css"/>
+    <title>Title</title>
+</head>
+
+<body>
+<h1>Welcome, <%= account %></h1>
+<div class="right-btn">
+    <button class="btn" type="submit" id="show-post">提问</button>
+</div>
+<div class="right-btn">
+    <button class="btn" type="submit" id="logout">登出</button>
+</div>
+<div class="forum-post">
+    <div class="div-s1">
+        <input type="text" id="summary" required="required" class="summary" name="summary" placeholder="请输入标题"/>
+    </div>
+    <div class="div-s1">
+        <textarea type="text" id="content" name="content" class="content" placeholder="请输入正文..."></textarea>
+    </div>
+    <div class="div-s1">
+        <div class="left-btn">
+            <button class="btn" type="submit" id="poster">发表</button>
+        </div>
+    </div>
+    <hr/>
+</div>
+<div id="rows">
+</div>
+<input type="hidden" id="account" value= <%= account %> />
+
+<script type="text/javascript">
+    var account = $('#account').val();
+    console.log(account);
+    $(function () {
+        initialize();
+        doDelete(summary);
+    });
+
+    function doDelete(summary) {
+        swal({
+            title:"",
+            text:"确定删除吗？",
+            type:"warning",
+            showCancelButton:"true",
+            showConfirmButton:"true",
+            confirmButtonText:"确定",
+            cancelButtonText:"取消",
+            animation:"slide-from-top"
+        }, function() {
+            location.href = "delete/" + summary;
+        });
+    }
+
+    // 初始化帖子数据
+    function initialize() {
+        $.ajax({
+            url:'/initialize',
+            type:'post',
+            dataType: "json",
+            success: function(data){
+                if(data != null){
+                    data.forEach(function(item){
+                        var s = "";
+                        s += "\
+                            <div class='forum-info'>\
+                                <div class='forum-summary'>\
+                                    <a id='detail' href='/content/" + item.summary + "'>" + item.summary + "</a>\
+                                </div>\
+                                <div class = 'forum-account'>" +
+                                    item.account +
+                                "</div>\
+                                <div class = 'forum-content'>" +
+                                    item.content +
+                                "</div>";
+                        if (item.account == account)
+                             s+="\
+                                <div class = 'btn2'>\
+                                    <a class='edit' href='/edit/"+ item.summary + "'>编辑</a>\
+                                    <a class='delete' href='javascript:void(0)' onclick=\"doDelete('" + item.summary + "')\" >删除</a>\
+                                </div>";
+                        s+= "<hr id='hr1'/>\
+                            </div>";
+                        $('#rows').append(s);
+                    });
+                }
+            },
+            error: function(data) {
+            }
+        });
+
+        $('#show-post').click(function (e) {
+            e.preventDefault();
+            $(".forum-post").toggle();
+        });
+
+
+        $('#poster').click(function (e) {
+            e.preventDefault();
+            var summary = $("#summary").val();
+            var content = $("#content").val();
+            if(summary == null || summary == '') {
+                swal({
+                    title: "",
+                    text: "请输入内容后再发表",
+                    type: "warning",
+                    showConfirmButton: false,
+                    width: 300,
+                    padding: 10,
+                    background: "#F5F5F5",
+                    timer: 1000
+                });
+                return;
+            }
+            var forumContent = {"summary": summary, "content": content};
+            $.ajax({
+                url: '/poster',
+                type: 'post',
+                data: forumContent,
+                success: function (data) {
+                    if (data.status == '30') {
+                        swal({
+                            title: "",
+                            text: "发表成功",
+                            type: "success",
+                            showConfirmButton: false,
+                            timer: 1000
+                        }, function () {
+                            location.reload();
+                        });
+                    } else if (data.status == '20') {
+                        swal({
+                            title: "",
+                            text: "标题重复",
+                            type: "warning",
+                            showConfirmButton: false,
+                            width: 300,
+                            padding: 10,
+                            background: "#F5F5F5",
+                            timer: 1000
+                        });
+                    } else {
+                        swal({
+                            title: "",
+                            text: "发表失败",
+                            type: "error",
+                            showConfirmButton: false,
+                            width: 300,
+                            padding: 10,
+                            background: "#F5F5F5",
+                            timer: 1000
+                        });
+                    }
+                },
+                error: function (data) {
+                    swal({
+                        title: "",
+                        text: "发生未知错误",
+                        type: "error",
+                        showConfirmButton: false,
+                        width: 300,
+                        padding: 10,
+                        background: "#F5F5F5",
+                        timer: 1000
+                    });
+                }
+            });
+        });
+
+
+        $('#logout').click(function (e) {
+            e.preventDefault();
+            location.href = "login";
+        });
+
+    }
+</script>
+</body>
+</html>

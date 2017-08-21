@@ -1,0 +1,15 @@
+#login ,#register{
+    margin: 0 auto;
+    text-align: center;
+    padding-top: 150px;
+}
+
+h1 {
+    color:  #0f88eb;
+    text-align: center;
+    letter-spacing: 5px;
+    font-size: 4em;
+}
+
+
+

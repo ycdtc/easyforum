@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="/javascripts/sweetalert.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/sweetalert.css"/>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/base.css"/>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/forum_detail.css"/>
+    <title>Title</title>
+    <script type="text/javascript">
+        $(function () {
+            initialize();
+
+        });
+        function initialize() {
+            var summary = $("#sum").val();
+            var content = $("#con").val();
+            var account = $("#acc").val();
+            console.log(summary);
+            var ForumSummary = {"summary": summary};
+            $.ajax({
+                url:'/replyinitialize',
+                type:'post',
+                data: ForumSummary,
+                dataType: "json",
+                success: function(data){
+                    if(data != null){
+                        data.forEach(function(item){
+                            var s = "";
+                            s += "\
+                            <div class='forum-info'>\
+                                <div class = 'forum-account'>" +
+                                item.account +
+                                "</div>\
+                                <div class = 'forum-content'>" +
+                                item.reply +
+                                "</div>";
+                            s+= "<hr id='hr1'/>\
+                            </div>";
+                            $('#reply_list').append(s);
+                        });
+                    }
+                },
+                error: function(data) {
+                }
+            });
+            $('#replyposter').click(function (e) {
+                e.preventDefault();
+                var reply = $("#reply").val();
+                if(reply == null || reply == '') {
+                    swal({
+                        title: "",
+                        text: "请输入内容",
+                        type: "warning",
+                        showConfirmButton: false,
+                        width: 300,
+                        padding: 10,
+                        background: "#F5F5F5",
+                        timer: 1000
+                    });
+                    return;
+                }
+                var replyContent = {"reply":reply, "summary":summary};
+                console.log("aaa");
+                console.log(summary);
+                $.ajax({
+                    url: '/replyposter',
+                    type: 'post',
+                    data: replyContent,
+                    success: function (data) {
+                        if (data.status == '30') {
+                            swal({
+                                title: "",
+                                text: "发表成功",
+                                type: "success",
+                                showConfirmButton: false,
+                                timer: 1000
+                            }, function () {
+                                location.reload();
+                            });
+                        }  else {
+                            swal({
+                                title: "",
+                                text: "发表失败",
+                                type: "error",
+                                showConfirmButton: false,
+                                width: 300,
+                                padding: 10,
+                                background: "#F5F5F5",
+                                timer: 1000
+                            });
+                        }
+                    },
+                    error: function (data) {
+                        swal({
+                            title: "",
+                            text: "发生未知错误",
+                            type: "error",
+                            showConfirmButton: false,
+                            width: 300,
+                            padding: 10,
+                            background: "#F5F5F5",
+                            timer: 1000
+                        });
+                    }
+                });
+            });
+            $('#logout').click(function (e) {
+                e.preventDefault();
+                location.href = "../forum";
+            });
+
+        }
+    </script>
+</head>
+
+<body>
+<input type="hidden" id="sum" value= "<%= summary %>" />
+<input type="hidden" id="con" value= "<%= content %>" />
+<input type="hidden" id="acc" value= "<%= account %>" />
+<div id="theme"><%= summary%> </br></br></div>
+<div id="author"><%= account%></div>
+<div id="article">
+    <%= content%>
+</div>
+<hr/>
+<div id="reply_list">
+</div>
+<div class="div-s1">
+    <div class="div-s1">
+        <textarea type="text" id="reply" name="reply" class="content" placeholder="请输入回复..."></textarea>
+    </div>
+    <div class="left-btn">
+        <button class="btn" type="submit" id="replyposter">发表</button>
+    </div>
+    <div class="right-btn">
+        <button class="btn" type="submit" id="logout">返回</button>
+    </div>
+</div>
+</body>
+</html>

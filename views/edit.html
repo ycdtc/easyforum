@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="/javascripts/sweetalert.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/sweetalert.css"/>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/base.css"/>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/forum.css"/>
+    <title>Title</title>
+</head>
+
+<body>
+<div class="forum-edit">
+    <div class="div-s1">
+        <input type="text" id="summary" required="required" class="summary" name="summary" readonly="readonly" value=<%= summary %> />
+    </div>
+    <div class="div-s1">
+        <textarea type="text" id="content" name="content" class="content" ><%= content %></textarea>
+    </div>
+    <div class="div-s1">
+        <div class="left-btn">
+            <button class="btn" type="submit" id="submit">提交</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+        $('#submit').click(function (e) {
+            e.preventDefault();
+            var summary = $("#summary").val();
+            var content = $("#content").val();
+            console.log(content);
+            var forumContent = {"summary": summary, "content": content};
+            $.ajax({
+                url: '/editPost',
+                type: 'post',
+                data: forumContent,
+                success: function (data) {
+                    if (data.status == '30') {
+                        swal({
+                            title: "",
+                            text: "发表成功",
+                            type: "success",
+                            showConfirmButton: false,
+                            timer: 1000
+                        }, function () {
+                            location.href = "../forum";
+                        });
+                    } else {
+                        swal({
+                            title: "",
+                            text: "发表失败",
+                            type: "error",
+                            showConfirmButton: false,
+                            width: 300,
+                            padding: 10,
+                            background: "#F5F5F5",
+                            timer: 1000
+                        });
+                    }
+                },
+                error: function (data) {
+                    swal({
+                        title: "",
+                        text: "发生未知错误",
+                        type: "error",
+                        showConfirmButton: false,
+                        width: 300,
+                        padding: 10,
+                        background: "#F5F5F5",
+                        timer: 1000
+                    });
+                }
+            });
+        });
+</script>
+</body>
+</html>

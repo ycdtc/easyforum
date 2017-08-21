@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+    <script type="text/javascript" src="javascripts/sweetalert.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="stylesheets/sweetalert.css"/>
+    <link rel="stylesheet" type="text/css" href="stylesheets/base.css"/>
+    <link rel="stylesheet" type="text/css" href="stylesheets/login.css"/>
+    <title><%= title %></title>
+</head>
+<body>
+<div id="register">
+    <h1>注册</h1>
+    <form id="user_register" method="post">
+        <div class="div-s1">
+            <input type="text" id="account" required="required" name="account" placeholder="用户名"/>
+        </div>
+        <div class="div-s1">
+            <input type="password" id="password" required="required" name="password"  placeholder="密码"/>
+        </div>
+        <div class="div-s1">
+            <input type="password" id="password1" required="required" name="password1"  placeholder="密码确认"/>
+        </div>
+        <div class="div-s1">
+            <div class="left-btn">
+                <button class="btn" type="submit" id="signUp">注册</button>
+            </div>
+            <div class="right-btn">
+                <button class="btn" type="submit" id="return">返回</button>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+<script type="text/javascript">
+
+    $('#return').click(function (e) {
+        e.preventDefault();
+        location.href = '/login';
+    });
+
+    $("#signUp").click(function (e) {
+        e.preventDefault();
+        var account = $("#account").val();
+        var password = $("#password").val();
+        var password1 = $("#password1").val();
+        if (password !== password1) {
+            swal({
+                title: "",
+                text: "两次密码输入不一致",
+                type: "warning",
+                showConfirmButton: false,
+                width: 300,
+                padding: 10,
+                background: "#F5F5F5",
+                timer: 1000
+            });
+            $("#password").css("border", "1px solid red");
+            $("#password1").css("border", "1px solid red");
+        } else if (password === password1) {
+            var userInfo = {"account": account, "password": password};
+            $.ajax({
+                url: '/signUp',
+                type: 'post',
+                data: userInfo,
+                success: function (data) {
+                    if (data.status == '30') {
+                        swal({
+                            title: "",
+                            text: "注册成功,返回登录",
+                            type: "success",
+                            showConfirmButton: false,
+                            timer: 1000
+                        }, function () {
+                            location.href = '/login'
+                        });
+                    } else if (data.status == '20') {
+                        swal({
+                            title: "",
+                            text: "用户名重复",
+                            type: "warning",
+                            showConfirmButton: false,
+                            width: 300,
+                            padding: 10,
+                            background: "#F5F5F5",
+                            timer: 1000
+                        });
+                    } else {
+                        swal({
+                            title: "",
+                            text: "注册失败,请重试",
+                            type: "error",
+                            showConfirmButton: false,
+                            width: 300,
+                            padding: 10,
+                            background: "#F5F5F5",
+                            timer: 1000
+                        });
+                    }
+                },
+                error: function (data) {
+                    swal({
+                        title: "",
+                        text: "发生未知错误",
+                        type: "error",
+                        showConfirmButton: false,
+                        width: 300,
+                        padding: 10,
+                        background: "#F5F5F5",
+                        timer: 1000
+                    });
+                }
+            });
+        }
+    });
+</script>
+</html>
